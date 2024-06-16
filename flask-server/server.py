@@ -9,7 +9,10 @@ import redis
 from flask_bcrypt import Bcrypt
 from flask_session import Session
 from flask_mail import Mail , Message
+import string
+import random
 import os
+
 
 
 
@@ -36,7 +39,7 @@ app.config['SESSION_REDIS'] = redis.from_url('redis://127.0.0.1:6379')
 app.config["MAIL_SERVER"] = 'smtp.gmail.com'
 app.config['MAIL_PORT'] = 465
 app.config['MAIL_USERNAME'] = 'fahdfattoumi8@gmail.com'
-app.config['MAIL_PASSWORD'] = 'wbhl xiug htrj vrir'
+app.config['MAIL_PASSWORD'] = 'htep xcht svbb yhun'
 app.config['MAIL_USE_TL5'] = False
 app.config['MAIL_USE_SSL'] = True
 
@@ -78,6 +81,12 @@ class Compus_Schema(ma.Schema):
     class Meta:
         fields = ('compus_id','place' , 'telephone', 'ville' )
 compus_schema = Compus_Schema(many=True)
+
+class Reservations_Schema(ma.Schema):
+    class Meta : 
+        fields = ('id', 'order_id', 'user_id', 'compus_id', "invite", "payment")
+reservation_shema = Reservations_Schema(many=True)
+
 
 @app.route('/')
 def index():
@@ -225,7 +234,34 @@ def add_order():
         return {'message' : "ok"}
     
     
-
+@app.route('/forget_pass', methods=["POST"])
+def forgetPass():
+    if request.method == "POST":
+        email = request.json['email']
+        print(email)
+        all_charactere = string.ascii_letters + string.digits + string.punctuation
+        new_pass = "".join(random.choices(all_charactere , k = 12))
+        print (new_pass)
+        new_pass_hash = bcrypt.generate_password_hash(new_pass)
+        Users.query.filter_by(email=email).update({"password" : new_pass_hash})
+        db.session.commit()
+        msg = Message("mot de pass oublie" ,recipients=[email] , sender='fahdfattoumi8@gmail.com')
+        msg.body = "We regenerate a new password for you \n new password :  {}".format(new_pass)
+        mail.send(msg)
+        
+        
+        # msg.body = ""
+        return {"message":"ok"}
+    
+@app.route("/admin/resevations" , methods=["POST", "GET"])
+def reservations():
+    if request.method == "GET":
+        
+        res = Reservations.query.all()
+        reservations = reservation_shema.dump(res)
+        return {"reservations" : reservations}
+    
+    
 
 
 if __name__ == '__main__':

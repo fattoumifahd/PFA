@@ -1,0 +1,13 @@
+.admin {
+    width: 50%;
+    display: flex;
+    justify-content: space-between;
+    flex-direction: row;
+    margin: 15rem auto;
+} 
+
+.admin .btn {
+    width: 13rem;
+    height: 5rem;
+    font-size: larger;
+}

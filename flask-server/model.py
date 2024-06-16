@@ -41,6 +41,7 @@ class Reservations(db.Model):
     user_id = db.Column(db.Integer , db.ForeignKey('users.user_id'), nullable=False)
     compus_id = db.Column(db.Integer , db.ForeignKey('compus.compus_id'))
     invite = db.Column(db.Integer , nullable = True)
+    payment = db.Column(db.boolean , nullable=False , default=0)
     
 
 class MenuItems(db.Model):
